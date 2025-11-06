@@ -153,10 +153,11 @@ function createRainLine() {
 }
 setInterval(createRainLine, 100);
 
-/* --- Click Burst: Two-Step with updated timing --- */
+/* --- Click Burst: White first, then pink letters spread --- */
 function createBurst(x, y){
-  // Step 1: small white letters
+  /* --- Step 1: White letters --- */
   const smallCount = 12;
+  const whiteLetters = [];
   for(let i=0;i<smallCount;i++){
     const burst = document.createElement('div');
     burst.className='burstSmall';
@@ -164,6 +165,7 @@ function createBurst(x, y){
     burst.style.left = x+'px';
     burst.style.top = y+'px';
     body.appendChild(burst);
+    whiteLetters.push(burst);
 
     const angle = Math.random()*2*Math.PI;
     const distance = 40 + Math.random()*20;
@@ -171,65 +173,80 @@ function createBurst(x, y){
     const dy = Math.sin(angle)*distance;
 
     const start = performance.now();
-    const duration = 1000 + Math.random()*200; // slower fade
-
+    const duration = 1500 + Math.random()*300; // slower fade
     function animate(time){
       const progress = (time-start)/duration;
       if(progress<1){
         burst.style.left = x + dx*progress+'px';
         burst.style.top = y + dy*progress+'px';
-        burst.style.opacity = 1-progress;
+        burst.style.opacity = 1;
         requestAnimationFrame(animate);
-      } else burst.remove();
+      }
     }
     requestAnimationFrame(animate);
   }
 
-  // Step 2: big pink letters with trail and more spread
-  const largeCount = 18;
-  for(let i=0;i<largeCount;i++){
-    const size = Math.random()<0.5?2.5:1.8;
-    const burst = document.createElement('div');
-    burst.className='burstText';
-    burst.style.fontSize = size+'em';
-    burst.textContent='I love you baby';
-    burst.style.left = x+'px';
-    burst.style.top = y+'px';
-    body.appendChild(burst);
+  /* --- Step 2: Pink letters slightly delayed --- */
+  setTimeout(()=>{
+    const largeCount = 12; // reduced so they can spread out
+    for(let i=0;i<largeCount;i++){
+      const size = Math.random()<0.5?2.5:1.8;
+      const burst = document.createElement('div');
+      burst.className='burstText';
+      burst.style.fontSize = size+'em';
+      burst.textContent='I love you baby';
+      burst.style.left = x+'px';
+      burst.style.top = y+'px';
+      body.appendChild(burst);
 
-    const angle = Math.random()*2*Math.PI;
-    const distance = 250 + Math.random()*100; // more spread
-    const dx = Math.cos(angle)*distance;
-    const dy = Math.sin(angle)*distance;
+      const angle = Math.random()*2*Math.PI;
+      const distance = 300 + Math.random()*100; // far spread
+      const dx = Math.cos(angle)*distance;
+      const dy = Math.sin(angle)*distance;
 
-    const start = performance.now();
-    const duration = 1800 + Math.random()*300;
+      const start = performance.now();
+      const duration = 1800 + Math.random()*300;
 
-    function animate(time){
-      const progress = (time-start)/duration;
-      if(progress<1){
-        const moveX = x + dx*progress;
-        const moveY = y + dy*progress;
-        burst.style.left = moveX+'px';
-        burst.style.top = moveY+'px';
-        burst.style.opacity = 1-progress;
+      function animate(time){
+        const progress = (time-start)/duration;
+        if(progress<1){
+          const moveX = x + dx*progress;
+          const moveY = y + dy*progress;
+          burst.style.left = moveX+'px';
+          burst.style.top = moveY+'px';
+          burst.style.opacity = 1-progress;
 
-        // 3D trail
-        for(let t=1;t<=3;t++){
-          const trail = burst.cloneNode(true);
-          trail.style.opacity = 0.25/t;
-          trail.style.fontSize = size*(1-0.1*t)+'em';
-          trail.style.left = moveX - t*3 + 'px';
-          trail.style.top = moveY - t*3 + 'px';
-          body.appendChild(trail);
-          setTimeout(()=>trail.remove(),250 + t*50);
-        }
-
-        requestAnimationFrame(animate);
-      } else burst.remove();
+          // 3D trail
+          for(let t=1;t<=3;t++){
+            const trail = burst.cloneNode(true);
+            trail.style.opacity = 0.25/t;
+            trail.style.fontSize = size*(1-0.1*t)+'em';
+            trail.style.left = moveX - t*3 + 'px';
+            trail.style.top = moveY - t*3 + 'px';
+            body.appendChild(trail);
+            setTimeout(()=>trail.remove(),250 + t*50);
+          }
+          requestAnimationFrame(animate);
+        } else burst.remove();
+      }
+      requestAnimationFrame(animate);
     }
-    requestAnimationFrame(animate);
-  }
+
+    // Fade white letters gradually after pink letters appear
+    whiteLetters.forEach(burst=>{
+      const startFade = performance.now();
+      const fadeDuration = 800;
+      function fade(time){
+        const progress = (time-startFade)/fadeDuration;
+        if(progress<1){
+          burst.style.opacity = 1-progress;
+          requestAnimationFrame(fade);
+        } else burst.remove();
+      }
+      requestAnimationFrame(fade);
+    });
+
+  }, 200); // small delay so white letters appear first
 }
 
 document.addEventListener('click', e=>{
