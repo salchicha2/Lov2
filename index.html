@@ -15,7 +15,7 @@
       background: #111;
       text-align: center;
       color: #ff69b4;
-      cursor: none; /* hide default cursor */
+      cursor: none; /* completely hide the default cursor */
       font-family: 'Fredoka One', cursive;
     }
 
@@ -74,10 +74,6 @@
     const audio = document.getElementById('clickSound');
     let audioPlayed = false;
 
-    const columnCount = 10;
-    const columns = [];
-    const rainTextArray = ["I love you"];
-
     /* --- Custom Heart Cursor --- */
     const cursor = document.createElement('div');
     cursor.style.position = 'absolute';
@@ -122,15 +118,17 @@
     setInterval(createHeart, 300);
 
     /* --- Raining "I love you" --- */
-    for (let i = 0; i < columnCount; i++) {
-      columns.push((window.innerWidth / columnCount) * i + Math.random() * 30);
+    const rainColumns = 15; // number of vertical lines
+    const rainPositions = [];
+    for (let i = 0; i < rainColumns; i++) {
+      rainPositions.push(Math.random() * window.innerWidth);
     }
 
     function createRainText() {
-      columns.forEach(x => {
+      rainPositions.forEach(x => {
         const text = document.createElement('div');
         text.className = 'rainText';
-        text.textContent = rainTextArray[0];
+        text.textContent = "I love you";
         text.style.left = x + 'px';
         text.style.top = '-30px';
         body.appendChild(text);
@@ -186,7 +184,7 @@
       }
     }
 
-    /* --- Attach click to entire body --- */
+    /* Attach click anywhere on body */
     body.addEventListener('click', e => {
       createBurst(e.clientX, e.clientY);
       if (!audioPlayed) {
