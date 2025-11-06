@@ -50,7 +50,7 @@ html, body {
 
 .burstSmall {
   font-family: 'Fredoka One', cursive;
-  font-size: 3em;
+  font-size: 2em; /* smaller white letters */
   color: #fff;
   opacity: 1;
 }
@@ -155,24 +155,20 @@ setInterval(createRainLine, 100);
 
 /* --- Click Burst: White letters first, pink letters after --- */
 function createBurst(x, y){
-  // --- Step 1: Big White Letters ---
+  // Step 1: White letters
   const whiteCount = 8;
   const whiteLetters = [];
   for(let i=0;i<whiteCount;i++){
     const burst = document.createElement('div');
     burst.textContent = 'I love you baby';
-    burst.style.position = 'fixed';
+    burst.className='burstSmall';
     burst.style.left = x+'px';
     burst.style.top = y+'px';
-    burst.style.fontSize = '3em';
-    burst.style.color = '#fff';
-    burst.style.zIndex = 10000;
-    burst.style.fontWeight = '700';
     body.appendChild(burst);
     whiteLetters.push(burst);
 
     const angle = Math.random()*2*Math.PI;
-    const distance = 200 + Math.random()*100; // moderate spread
+    const distance = 200 + Math.random()*100;
     const dx = Math.cos(angle)*distance;
     const dy = Math.sin(angle)*distance;
 
@@ -190,24 +186,22 @@ function createBurst(x, y){
     requestAnimationFrame(animate);
   }
 
-  // --- Step 2: Big Pink Letters delayed ---
+  // Step 2: Pink letters delayed
   setTimeout(()=>{
-    const pinkCount = 5;
+    const pinkCount = 6;
     for(let i=0;i<pinkCount;i++){
       const size = Math.random()<0.5?3:2.5;
       const burst = document.createElement('div');
       burst.textContent = 'I love you baby';
-      burst.style.position = 'fixed';
+      burst.className='burstText';
+      burst.style.fontSize = size+'em';
       burst.style.left = x+'px';
       burst.style.top = y+'px';
-      burst.style.fontSize = size+'em';
-      burst.style.color = '#ff69b4';
-      burst.style.zIndex = 9999; // behind white letters
-      burst.style.fontWeight = '700';
       body.appendChild(burst);
 
+      // Random direction for every letter
       const angle = Math.random()*2*Math.PI;
-      const distance = 700 + Math.random()*200; // farther spread
+      const distance = 700 + Math.random()*200;
       const dx = Math.cos(angle)*distance;
       const dy = Math.sin(angle)*distance;
 
@@ -223,7 +217,7 @@ function createBurst(x, y){
           burst.style.top = moveY+'px';
           burst.style.opacity = 1-progress;
 
-          // 3D trail
+          // 3D trail for depth
           for(let t=1;t<=3;t++){
             const trail = burst.cloneNode(true);
             trail.style.position='fixed';
@@ -256,7 +250,7 @@ function createBurst(x, y){
         }
         requestAnimationFrame(fade);
       });
-    }, 800); // wait before fading white letters
+    }, 800);
 
   }, 400);
 }
