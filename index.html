@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <title>Love Page</title>
 
-  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Fredoka+One&family=Permanent+Marker&display=swap" rel="stylesheet">
 
   <style>
@@ -13,7 +12,7 @@
       padding: 0;
       overflow: hidden;
       background: #111;
-      cursor: none !important; /* hide system pointer completely */
+      cursor: none !important;
       font-family: 'Fredoka One', cursive;
     }
 
@@ -61,37 +60,41 @@
 </head>
 <body>
 
-<div id="mainText">I love you Jainayah ❤️</div>
+<div id="mainText">I love you Jainayah 💖</div>
 <audio id="clickSound" src="The 1975 - About You (Official) - nabila.mp3"></audio>
 
 <script>
-  const body = document.body;
-  const audio = document.getElementById('clickSound');
-  let audioPlayed = false;
+const body = document.body;
+const audio = document.getElementById('clickSound');
+let audioPlayed = false;
 
-  /* --- Custom Heart Cursor --- */
-  const cursor = document.createElement('div');
-  cursor.style.position = 'fixed';
-  cursor.style.width = '25px';
-  cursor.style.height = '25px';
-  cursor.style.pointerEvents = 'none';
-  cursor.style.zIndex = 9999;
-  cursor.style.userSelect = 'none';
-  cursor.style.fontSize = '25px';
-  cursor.innerHTML = '❤️';
-  body.appendChild(cursor);
+/* --- Custom Heart Cursor --- */
+const cursor = document.createElement('div');
+cursor.style.position = 'fixed';
+cursor.style.width = '25px';
+cursor.style.height = '25px';
+cursor.style.pointerEvents = 'none';
+cursor.style.zIndex = 9999;
+cursor.style.userSelect = 'none';
+cursor.style.fontSize = '25px';
+cursor.innerHTML = '❤️';
+body.appendChild(cursor);
 
-  document.addEventListener('mousemove', e => {
-    cursor.style.left = (e.clientX - 12) + 'px';
-    cursor.style.top = (e.clientY - 12) + 'px';
-  });
+document.addEventListener('mousemove', e => {
+  cursor.style.left = (e.clientX - 12) + 'px';
+  cursor.style.top = (e.clientY - 12) + 'px';
+});
 
-  /* --- Floating Hearts --- */
-  function createHeart() {
+/* --- Mirrored Floating Hearts --- */
+function createMirroredHeart() {
+  const x = Math.random() * window.innerWidth;
+  const positions = [x, window.innerWidth - x];
+
+  positions.forEach(pos => {
     const heart = document.createElement('div');
     heart.className = 'heart';
     heart.textContent = '❤️';
-    heart.style.left = Math.random() * window.innerWidth + 'px';
+    heart.style.left = pos + 'px';
     heart.style.bottom = '0px';
     body.appendChild(heart);
 
@@ -108,56 +111,58 @@
       }
     }
     requestAnimationFrame(animate);
+  });
+}
+setInterval(createMirroredHeart, 300);
+
+/* --- Patterned Vertical "I love you" Rain (Denser) --- */
+const columnCount = 15;
+const columns = [];
+for (let i = 0; i < columnCount; i++) {
+  columns.push(Math.random() * window.innerWidth);
+}
+
+function createDenserRainPattern() {
+  const count = 5 + Math.floor(Math.random() * 6);
+  const activeColumns = [];
+
+  while (activeColumns.length < count) {
+    const col = columns[Math.floor(Math.random() * columns.length)];
+    if (!activeColumns.includes(col)) activeColumns.push(col);
   }
-  setInterval(createHeart, 300);
 
-  /* --- Patterned Vertical "I love you" Rain --- */
-  const columnCount = 10;
-  const columns = [];
+  activeColumns.forEach(x => {
+    const text = document.createElement('div');
+    text.className = 'rainText';
+    text.textContent = 'I love you';
+    text.style.left = x + 'px';
+    text.style.top = '-30px';
+    body.appendChild(text);
 
-  for (let i = 0; i < columnCount; i++) {
-    columns.push(Math.random() * window.innerWidth);
-  }
+    const duration = 1800 + Math.random() * 500;
+    const start = performance.now();
 
-  function createRainPattern() {
-    // pick random 3–6 columns to drop text this interval
-    const activeColumns = [];
-    const count = 3 + Math.floor(Math.random() * 4);
-
-    while(activeColumns.length < count) {
-      const col = columns[Math.floor(Math.random() * columns.length)];
-      if(!activeColumns.includes(col)) activeColumns.push(col);
-    }
-
-    activeColumns.forEach(x => {
-      const text = document.createElement('div');
-      text.className = 'rainText';
-      text.textContent = 'I love you';
-      text.style.left = x + 'px';
-      text.style.top = '-30px';
-      body.appendChild(text);
-
-      const duration = 2000 + Math.random() * 500;
-      const start = performance.now();
-
-      function animate(time) {
-        const progress = (time - start) / duration;
-        if(progress < 1) {
-          text.style.top = (progress * (window.innerHeight + 50)) + 'px';
-          requestAnimationFrame(animate);
-        } else {
-          text.remove();
-        }
+    function animate(time) {
+      const progress = (time - start) / duration;
+      if (progress < 1) {
+        text.style.top = (progress * (window.innerHeight + 50)) + 'px';
+        requestAnimationFrame(animate);
+      } else {
+        text.remove();
       }
-      requestAnimationFrame(animate);
-    });
-  }
-  setInterval(createRainPattern, 300);
+    }
+    requestAnimationFrame(animate);
+  });
+}
+setInterval(createDenserRainPattern, 250);
 
-  /* --- Click Burst --- */
-  function createBurst(x, y) {
-    const burstCount = 20;
-    for(let i = 0; i < burstCount; i++){
+/* --- Click Burst with More Lines + Mirroring --- */
+function createBurst(x, y) {
+  const burstCount = 30; // more lines
+  for (let i = 0; i < burstCount; i++) {
+    const offsets = [1, -1]; // mirroring horizontally
+
+    offsets.forEach(factor => {
       const burst = document.createElement('div');
       burst.className = 'burstText';
       burst.textContent = 'I love you baby';
@@ -165,17 +170,17 @@
       burst.style.top = y + 'px';
       body.appendChild(burst);
 
-      const angle = Math.random() * 2 * Math.PI;
+      const angle = Math.random() * Math.PI; // half circle
       const distance = 50 + Math.random() * 50;
-      const dx = Math.cos(angle) * distance;
+      const dx = Math.cos(angle) * distance * factor;
       const dy = Math.sin(angle) * distance;
 
       const start = performance.now();
       const duration = 800 + Math.random() * 200;
 
-      function animate(time){
+      function animate(time) {
         const progress = (time - start) / duration;
-        if(progress < 1){
+        if (progress < 1) {
           burst.style.left = x + dx * progress + 'px';
           burst.style.top = y + dy * progress + 'px';
           burst.style.opacity = 1 - progress;
@@ -185,64 +190,65 @@
         }
       }
       requestAnimationFrame(animate);
-    }
+    });
   }
+}
 
-  document.addEventListener('click', e => {
-    createBurst(e.clientX, e.clientY);
-    if(!audioPlayed){
-      audio.play();
-      audioPlayed = true;
-    }
-  });
+document.addEventListener('click', e => {
+  createBurst(e.clientX, e.clientY);
+  if (!audioPlayed) {
+    audio.play();
+    audioPlayed = true;
+  }
+});
 
-  /* --- Big Pink Fireworks --- */
-  function createFirework() {
-    const fireworkCount = 15 + Math.floor(Math.random() * 10);
-    const xOrigin = Math.random() * window.innerWidth;
-    const yOrigin = Math.random() * window.innerHeight / 2;
+/* --- Big Pink Fireworks --- */
+function createFirework() {
+  const fireworkCount = 15 + Math.floor(Math.random() * 10);
+  const xOrigin = Math.random() * window.innerWidth;
+  const yOrigin = Math.random() * window.innerHeight / 2;
 
-    for(let i = 0; i < fireworkCount; i++){
-      const spark = document.createElement('div');
-      spark.style.position = 'absolute';
-      spark.style.left = xOrigin + 'px';
-      spark.style.top = yOrigin + 'px';
-      spark.style.width = '12px';
-      spark.style.height = '12px';
-      spark.style.background = '#ff69b4';
-      spark.style.borderRadius = '50%';
-      spark.style.pointerEvents = 'none';
-      spark.style.zIndex = 5;
-      body.appendChild(spark);
+  for (let i = 0; i < fireworkCount; i++) {
+    const spark = document.createElement('div');
+    spark.style.position = 'absolute';
+    spark.style.left = xOrigin + 'px';
+    spark.style.top = yOrigin + 'px';
+    spark.style.width = '12px';
+    spark.style.height = '12px';
+    spark.style.background = '#ff69b4';
+    spark.style.borderRadius = '50%';
+    spark.style.pointerEvents = 'none';
+    spark.style.zIndex = 5;
+    body.appendChild(spark);
 
-      const angle = Math.random() * 2 * Math.PI;
-      const distance = 60 + Math.random() * 50;
-      const dx = Math.cos(angle) * distance;
-      const dy = Math.sin(angle) * distance;
+    const angle = Math.random() * 2 * Math.PI;
+    const distance = 60 + Math.random() * 50;
+    const dx = Math.cos(angle) * distance;
+    const dy = Math.sin(angle) * distance;
 
-      const duration = 900 + Math.random() * 400;
-      const start = performance.now();
+    const duration = 900 + Math.random() * 400;
+    const start = performance.now();
 
-      function animate(time){
-        const progress = (time - start) / duration;
-        if(progress < 1){
-          spark.style.left = xOrigin + dx * progress + 'px';
-          spark.style.top = yOrigin + dy * progress + 'px';
-          spark.style.opacity = 1 - progress;
-          requestAnimationFrame(animate);
-        } else {
-          spark.remove();
-        }
+    function animate(time) {
+      const progress = (time - start) / duration;
+      if (progress < 1) {
+        spark.style.left = xOrigin + dx * progress + 'px';
+        spark.style.top = yOrigin + dy * progress + 'px';
+        spark.style.opacity = 1 - progress;
+        requestAnimationFrame(animate);
+      } else {
+        spark.remove();
       }
-      requestAnimationFrame(animate);
     }
+    requestAnimationFrame(animate);
   }
+}
 
-  setInterval(() => {
-    if(Math.random() < 0.3){
-      createFirework();
-    }
-  }, 500);
+setInterval(() => {
+  if (Math.random() < 0.3) {
+    createFirework();
+  }
+}, 500);
 
 </script>
 </body>
