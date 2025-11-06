@@ -15,7 +15,7 @@
       background: #111;
       text-align: center;
       color: #ff69b4;
-      cursor: none; /* completely hide the default cursor */
+      cursor: none; /* hide default cursor */
       font-family: 'Fredoka One', cursive;
     }
 
@@ -30,7 +30,7 @@
       font-weight: 700;
       text-shadow: 2px 2px 10px #ff1493;
       z-index: 10;
-      pointer-events: none; /* allow clicks through */
+      pointer-events: none;
     }
 
     /* Floating hearts */
@@ -81,7 +81,7 @@
     cursor.style.height = '25px';
     cursor.style.color = '#ff69b4';
     cursor.style.fontSize = '25px';
-    cursor.style.pointerEvents = 'none'; // clicks pass through
+    cursor.style.pointerEvents = 'none';
     cursor.style.zIndex = 1000;
     cursor.style.userSelect = 'none';
     cursor.innerHTML = '❤️';
@@ -117,15 +117,27 @@
     }
     setInterval(createHeart, 300);
 
-    /* --- Raining "I love you" --- */
-    const rainColumns = 15; // number of vertical lines
+    /* --- Patterned Raining "I love you" --- */
     const rainPositions = [];
-    for (let i = 0; i < rainColumns; i++) {
+    const maxColumns = 15;
+
+    // Possible x positions
+    for (let i = 0; i < maxColumns; i++) {
       rainPositions.push(Math.random() * window.innerWidth);
     }
 
-    function createRainText() {
-      rainPositions.forEach(x => {
+    function createPatternedRain() {
+      const count = 3 + Math.floor(Math.random() * 4); // 3–6 lines per interval
+      const positionsThisInterval = [];
+
+      while (positionsThisInterval.length < count) {
+        const pos = rainPositions[Math.floor(Math.random() * rainPositions.length)];
+        if (!positionsThisInterval.includes(pos)) {
+          positionsThisInterval.push(pos);
+        }
+      }
+
+      positionsThisInterval.forEach(x => {
         const text = document.createElement('div');
         text.className = 'rainText';
         text.textContent = "I love you";
@@ -148,7 +160,7 @@
         requestAnimationFrame(animate);
       });
     }
-    setInterval(createRainText, 300);
+    setInterval(createPatternedRain, 300);
 
     /* --- Click Burst --- */
     function createBurst(x, y) {
@@ -208,7 +220,7 @@
         spark.style.height = '10px';
         spark.style.background = '#ff69b4';
         spark.style.borderRadius = '50%';
-        spark.style.pointerEvents = 'none'; // never block clicks
+        spark.style.pointerEvents = 'none';
         spark.style.zIndex = 5;
         document.body.appendChild(spark);
 
@@ -217,7 +229,7 @@
         const dx = Math.cos(angle) * distance;
         const dy = Math.sin(angle) * distance;
 
-        const duration = 800 + Math.random() * 400; // long enough to notice
+        const duration = 800 + Math.random() * 400;
         const start = performance.now();
 
         function animate(time) {
