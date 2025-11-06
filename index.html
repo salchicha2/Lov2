@@ -53,7 +53,7 @@ html, body {
   font-family: 'Permanent Marker', cursive;
   font-size: 1.2em;
   color: #fff;
-  opacity: 0.9;
+  opacity: 1;
 }
 
 .burstText {
@@ -90,7 +90,7 @@ document.addEventListener('mousemove', e => {
   cursor.style.top = (e.clientY - 12) + 'px';
 });
 
-/* --- Background Hearts with Mirrored Movement --- */
+/* --- Background Hearts --- */
 function createMirroredHeart(){
   const x = Math.random()*window.innerWidth;
   const positions = [x, window.innerWidth - x];
@@ -119,58 +119,46 @@ function createMirroredHeart(){
 }
 setInterval(createMirroredHeart, 300);
 
-/* --- Rain Columns (Vertical Lines, Limited Columns) --- */
-const columnCount = 12;
-const activeColumns = Array(columnCount).fill(false);
-
-function createRainLineColumn() {
-  let available = [];
-  for (let i = 0; i < columnCount; i++) if (!activeColumns[i]) available.push(i);
-  if (available.length === 0) return;
-
-  const colIndex = available[Math.floor(Math.random() * available.length)];
-  activeColumns[colIndex] = true;
-
-  const x = (colIndex + 0.5) * (window.innerWidth / columnCount);
-
+/* --- Rain Lines (Vertical, lots of them) --- */
+function createRainLine() {
+  const x = Math.random()*window.innerWidth;
   const text = document.createElement('div');
-  text.className = 'rainText';
-  text.textContent = 'I love you';
-  text.style.left = x + 'px';
-  text.style.top = '-30px';
+  text.className='rainText';
+  text.textContent='I love you';
+  text.style.left = x+'px';
+  text.style.top='-30px';
   body.appendChild(text);
 
   const mirror = document.createElement('div');
-  mirror.className = 'rainText';
-  mirror.textContent = 'I love you';
-  mirror.style.left = (window.innerWidth - x) + 'px';
-  mirror.style.top = '-30px';
+  mirror.className='rainText';
+  mirror.textContent='I love you';
+  mirror.style.left = (window.innerWidth - x)+'px';
+  mirror.style.top='-30px';
   body.appendChild(mirror);
 
   const duration = 1200;
   const start = performance.now();
 
-  function animate(time) {
-    const progress = (time - start)/duration;
-    if (progress < 1) {
-      const topPos = progress * (window.innerHeight + 50);
-      text.style.top = topPos + 'px';
-      mirror.style.top = topPos + 'px';
+  function animate(time){
+    const progress = (time-start)/duration;
+    if(progress<1){
+      const topPos = progress*(window.innerHeight+50);
+      text.style.top = topPos+'px';
+      mirror.style.top = topPos+'px';
       requestAnimationFrame(animate);
     } else {
       text.remove();
       mirror.remove();
-      activeColumns[colIndex] = false;
     }
   }
   requestAnimationFrame(animate);
 }
-setInterval(createRainLineColumn, 250);
+setInterval(createRainLine, 100); // a lot of lines continuously
 
-/* --- Two-Step Click Burst --- */
+/* --- Click Burst: Two-Step --- */
 function createBurst(x, y){
-  // Step 1: Small white letters
-  const smallCount = 20;
+  // Step 1: small white letters
+  const smallCount = 12;
   for(let i=0;i<smallCount;i++){
     const burst = document.createElement('div');
     burst.className='burstSmall';
@@ -180,12 +168,12 @@ function createBurst(x, y){
     body.appendChild(burst);
 
     const angle = Math.random()*2*Math.PI;
-    const distance = 50 + Math.random()*20;
+    const distance = 40 + Math.random()*20;
     const dx = Math.cos(angle)*distance;
     const dy = Math.sin(angle)*distance;
 
     const start = performance.now();
-    const duration = 500 + Math.random()*200;
+    const duration = 400 + Math.random()*100;
 
     function animate(time){
       const progress = (time-start)/duration;
@@ -199,10 +187,10 @@ function createBurst(x, y){
     requestAnimationFrame(animate);
   }
 
-  // Step 2: Larger pink letters
-  const largeCount = 40;
+  // Step 2: big pink letters with trail
+  const largeCount = 18;
   for(let i=0;i<largeCount;i++){
-    const size = Math.random() < 0.5 ? 2.5 : 1.5;
+    const size = Math.random()<0.5?2.5:1.8;
     const burst = document.createElement('div');
     burst.className='burstText';
     burst.style.fontSize = size+'em';
@@ -212,7 +200,7 @@ function createBurst(x, y){
     body.appendChild(burst);
 
     const angle = Math.random()*2*Math.PI;
-    const distance = 200 + Math.random()*50;
+    const distance = 180 + Math.random()*50;
     const dx = Math.cos(angle)*distance;
     const dy = Math.sin(angle)*distance;
 
@@ -221,7 +209,7 @@ function createBurst(x, y){
 
     function animate(time){
       const progress = (time-start)/duration;
-      if(progress <1){
+      if(progress<1){
         const moveX = x + dx*progress;
         const moveY = y + dy*progress;
         burst.style.left = moveX+'px';
@@ -238,6 +226,7 @@ function createBurst(x, y){
           body.appendChild(trail);
           setTimeout(()=>trail.remove(),250 + t*50);
         }
+
         requestAnimationFrame(animate);
       } else burst.remove();
     }
@@ -253,7 +242,7 @@ document.addEventListener('click', e=>{
   }
 });
 
-/* --- Realistic Fireworks Explosions --- */
+/* --- Pink Fireworks --- */
 function createFirework(){
   const sparkCount = 30 + Math.floor(Math.random()*20);
   const xOrigin = Math.random()*window.innerWidth;
@@ -282,7 +271,7 @@ function createFirework(){
 
     function animate(time){
       const progress = (time-start)/duration;
-      if(progress <1){
+      if(progress<1){
         spark.style.left = xOrigin + dx*progress+'px';
         spark.style.top = yOrigin + dy*progress+'px';
         spark.style.opacity = 1-progress;
