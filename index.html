@@ -28,7 +28,7 @@ html, body {
   color: #ff69b4;
 }
 
-.heart, .trail {
+.heart {
   position: absolute;
   font-size: 25px;
   color: #ff69b4;
@@ -83,7 +83,7 @@ document.addEventListener('mousemove', e => {
   cursor.style.top = (e.clientY - 12) + 'px';
 });
 
-/* --- Background Hearts with Mirrored Trails --- */
+/* --- Background Hearts with Mirrored Movement --- */
 function createMirroredHeart(){
   const x = Math.random()*window.innerWidth;
   const positions = [x, window.innerWidth - x];
@@ -104,12 +104,6 @@ function createMirroredHeart(){
       if(progress < 1){
         const bottomPos = progress*(window.innerHeight+50);
         heart.style.bottom = bottomPos+'px';
-
-        const trail = heart.cloneNode(true);
-        trail.style.opacity = 0.3;
-        body.appendChild(trail);
-        setTimeout(()=>trail.remove(),300);
-
         requestAnimationFrame(animate);
       } else heart.remove();
     }
@@ -118,7 +112,7 @@ function createMirroredHeart(){
 }
 setInterval(createMirroredHeart, 300);
 
-/* --- Dynamic Rain Lines --- */
+/* --- Dynamic Rain Lines (No Extra Trail) --- */
 const activeColumns = [];
 const maxColumns = 15;
 
@@ -141,7 +135,7 @@ function createRainLine(){
     mirror.style.top='-30px';
     body.appendChild(mirror);
 
-    const duration = 800;
+    const duration = 1200;
     const start = performance.now();
 
     function animate(time){
@@ -150,18 +144,6 @@ function createRainLine(){
         const topPos = progress*(window.innerHeight+50);
         text.style.top = topPos+'px';
         mirror.style.top = topPos+'px';
-
-        // trailing shadows
-        const textTrail = text.cloneNode(true);
-        textTrail.style.opacity = 0.3;
-        body.appendChild(textTrail);
-        setTimeout(()=>textTrail.remove(),300);
-
-        const mirrorTrail = mirror.cloneNode(true);
-        mirrorTrail.style.opacity = 0.3;
-        body.appendChild(mirrorTrail);
-        setTimeout(()=>mirrorTrail.remove(),300);
-
         requestAnimationFrame(animate);
       } else {
         text.remove();
@@ -173,57 +155,53 @@ function createRainLine(){
     requestAnimationFrame(animate);
   }
 }
-setInterval(createRainLine, 150);
+setInterval(createRainLine, 250);
 
-/* --- Click Burst: Clustered then Spread with 3D Trails --- */
+/* --- Click Burst: Farther, Slower, Readable --- */
 function createBurst(x, y){
-  const burstCount = 50;
+  const burstCount = 40;
   for(let i=0;i<burstCount;i++){
-    [1,-1].forEach(factor=>{
-      const size = Math.random() < 0.5 ? 2.5 : 1.5;
-      const burst = document.createElement('div');
-      burst.className='burstText';
-      burst.style.fontSize = size+'em';
-      burst.textContent='I love you baby';
-      burst.style.left = x+'px';
-      burst.style.top = y+'px';
-      body.appendChild(burst);
+    const size = Math.random() < 0.5 ? 2.5 : 1.5;
+    const burst = document.createElement('div');
+    burst.className='burstText';
+    burst.style.fontSize = size+'em';
+    burst.textContent='I love you baby';
+    burst.style.left = x+'px';
+    burst.style.top = y+'px';
+    body.appendChild(burst);
 
-      let angle = Math.random() * Math.PI/4 - Math.PI/8;
-      let distance = 50 + Math.random()*30;
+    const angle = Math.random()*2*Math.PI;
+    const distance = 250 + Math.random()*50; // farther spread
+    const dx = Math.cos(angle)*distance;
+    const dy = Math.sin(angle)*distance;
 
-      const start = performance.now();
-      const duration = 1200 + Math.random()*300;
+    const start = performance.now();
+    const duration = 1400 + Math.random()*300; // slower to read
 
-      function animate(time){
-        const progress = (time - start)/duration;
-        if(progress <1){
-          const spreadFactor = Math.min(progress*2,1);
-          const dx = Math.cos(angle)*(distance + 100*spreadFactor)*factor;
-          const dy = Math.sin(angle)*(distance + 100*spreadFactor);
+    function animate(time){
+      const progress = (time-start)/duration;
+      if(progress <1){
+        const moveX = x + dx*progress;
+        const moveY = y + dy*progress;
+        burst.style.left = moveX+'px';
+        burst.style.top = moveY+'px';
+        burst.style.opacity = 1-progress;
 
-          const moveX = x + dx;
-          const moveY = y + dy;
+        // stronger 3D trail
+        for(let t=1;t<=3;t++){
+          const trail = burst.cloneNode(true);
+          trail.style.opacity = 0.25/t;
+          trail.style.fontSize = size*(1-0.1*t)+'em';
+          trail.style.left = moveX - t*3 + 'px';
+          trail.style.top = moveY - t*3 + 'px';
+          body.appendChild(trail);
+          setTimeout(()=>trail.remove(),250 + t*50);
+        }
 
-          burst.style.left = moveX+'px';
-          burst.style.top = moveY+'px';
-          burst.style.opacity = 1-progress;
-
-          for(let t=1;t<=3;t++){
-            const trail = burst.cloneNode(true);
-            trail.style.opacity = 0.3/(t);
-            trail.style.fontSize = size*(1-0.1*t)+'em';
-            trail.style.left = moveX - t*2 + 'px';
-            trail.style.top = moveY - t*2 + 'px';
-            body.appendChild(trail);
-            setTimeout(()=>trail.remove(),300 + t*50);
-          }
-
-          requestAnimationFrame(animate);
-        } else burst.remove();
-      }
-      requestAnimationFrame(animate);
-    });
+        requestAnimationFrame(animate);
+      } else burst.remove();
+    }
+    requestAnimationFrame(animate);
   }
 }
 
