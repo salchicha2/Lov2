@@ -30,7 +30,7 @@ html, body {
 
 .heart {
   position: absolute;
-  font-size: 35px;
+  font-size: 40px;
   color: #ff69b4;
   pointer-events: none;
 }
@@ -49,14 +49,14 @@ html, body {
 }
 
 .burstSmall {
-  font-family: 'Permanent Marker', cursive;
-  font-size: 2.5em;
+  font-family: 'Fredoka One', cursive;
+  font-size: 3em;
   color: #fff;
   opacity: 1;
 }
 
 .burstText {
-  font-family: 'Permanent Marker', cursive;
+  font-family: 'Fredoka One', cursive;
   color: #ff69b4;
   opacity: 0.9;
 }
@@ -75,18 +75,18 @@ let audioPlayed = false;
 /* --- Custom Heart Cursor --- */
 const cursor = document.createElement('div');
 cursor.style.position = 'fixed';
-cursor.style.width = '25px';
-cursor.style.height = '25px';
+cursor.style.width = '30px';
+cursor.style.height = '30px';
 cursor.style.pointerEvents = 'none';
 cursor.style.zIndex = 9999;
 cursor.style.userSelect = 'none';
-cursor.style.fontSize = '25px';
+cursor.style.fontSize = '30px';
 cursor.innerHTML = '❤️';
 body.appendChild(cursor);
 
 document.addEventListener('mousemove', e => {
-  cursor.style.left = (e.clientX - 12) + 'px';
-  cursor.style.top = (e.clientY - 12) + 'px';
+  cursor.style.left = (e.clientX - 15) + 'px';
+  cursor.style.top = (e.clientY - 15) + 'px';
 });
 
 /* --- Background Hearts --- */
@@ -153,61 +153,66 @@ function createRainLine() {
 }
 setInterval(createRainLine, 100);
 
-/* --- Click Burst: White letters first, pink letters spread far --- */
+/* --- Click Burst: White letters first, pink letters after --- */
 function createBurst(x, y){
-  /* Step 1: White letters */
-  const smallCount = 12;
+  // --- Step 1: Big White Letters ---
+  const whiteCount = 8;
   const whiteLetters = [];
-  for(let i=0;i<smallCount;i++){
+  for(let i=0;i<whiteCount;i++){
     const burst = document.createElement('div');
-    burst.className='burstSmall';
-    burst.textContent='I love you baby';
+    burst.textContent = 'I love you baby';
+    burst.style.position = 'fixed';
     burst.style.left = x+'px';
     burst.style.top = y+'px';
-    burst.style.zIndex = 9999; // on top
+    burst.style.fontSize = '3em';
+    burst.style.color = '#fff';
+    burst.style.zIndex = 10000;
+    burst.style.fontWeight = '700';
     body.appendChild(burst);
     whiteLetters.push(burst);
 
     const angle = Math.random()*2*Math.PI;
-    const distance = 50 + Math.random()*20;
+    const distance = 200 + Math.random()*100; // moderate spread
     const dx = Math.cos(angle)*distance;
     const dy = Math.sin(angle)*distance;
 
     const start = performance.now();
-    const duration = 1500;
+    const duration = 2500;
+
     function animate(time){
       const progress = (time-start)/duration;
       if(progress<1){
         burst.style.left = x + dx*progress+'px';
         burst.style.top = y + dy*progress+'px';
-        burst.style.opacity = 1;
         requestAnimationFrame(animate);
       }
     }
     requestAnimationFrame(animate);
   }
 
-  /* Step 2: Pink letters slightly delayed */
+  // --- Step 2: Big Pink Letters delayed ---
   setTimeout(()=>{
-    const largeCount = 8;
-    for(let i=0;i<largeCount;i++){
-      const size = Math.random()<0.5?2.5:1.8;
+    const pinkCount = 5;
+    for(let i=0;i<pinkCount;i++){
+      const size = Math.random()<0.5?3:2.5;
       const burst = document.createElement('div');
-      burst.className='burstText';
-      burst.style.fontSize = size+'em';
-      burst.textContent='I love you baby';
+      burst.textContent = 'I love you baby';
+      burst.style.position = 'fixed';
       burst.style.left = x+'px';
       burst.style.top = y+'px';
-      burst.style.zIndex = 20; // behind white letters
+      burst.style.fontSize = size+'em';
+      burst.style.color = '#ff69b4';
+      burst.style.zIndex = 9999; // behind white letters
+      burst.style.fontWeight = '700';
       body.appendChild(burst);
 
       const angle = Math.random()*2*Math.PI;
-      const distance = 500 + Math.random()*200; // maximum spread
+      const distance = 700 + Math.random()*200; // farther spread
       const dx = Math.cos(angle)*distance;
       const dy = Math.sin(angle)*distance;
 
       const start = performance.now();
-      const duration = 2000;
+      const duration = 3000;
 
       function animate(time){
         const progress = (time-start)/duration;
@@ -221,13 +226,14 @@ function createBurst(x, y){
           // 3D trail
           for(let t=1;t<=3;t++){
             const trail = burst.cloneNode(true);
-            trail.style.opacity = 0.25/t;
+            trail.style.position='fixed';
             trail.style.fontSize = size*(1-0.1*t)+'em';
             trail.style.left = moveX - t*3 + 'px';
             trail.style.top = moveY - t*3 + 'px';
-            trail.style.zIndex = 19;
+            trail.style.opacity = 0.25/t;
+            trail.style.zIndex = 9000;
             body.appendChild(trail);
-            setTimeout(()=>trail.remove(),250 + t*50);
+            setTimeout(()=>trail.remove(), 300 + t*50);
           }
 
           requestAnimationFrame(animate);
@@ -236,21 +242,23 @@ function createBurst(x, y){
       requestAnimationFrame(animate);
     }
 
-    // Fade white letters gradually after pink letters appear
-    whiteLetters.forEach(burst=>{
-      const startFade = performance.now();
-      const fadeDuration = 1000;
-      function fade(time){
-        const progress = (time-startFade)/fadeDuration;
-        if(progress<1){
-          burst.style.opacity = 1-progress;
-          requestAnimationFrame(fade);
-        } else burst.remove();
-      }
-      requestAnimationFrame(fade);
-    });
+    // Fade white letters gradually after pink letters spread
+    setTimeout(()=>{
+      whiteLetters.forEach(burst=>{
+        const startFade = performance.now();
+        const fadeDuration = 1200;
+        function fade(time){
+          const progress = (time-startFade)/fadeDuration;
+          if(progress < 1){
+            burst.style.opacity = 1 - progress;
+            requestAnimationFrame(fade);
+          } else burst.remove();
+        }
+        requestAnimationFrame(fade);
+      });
+    }, 800); // wait before fading white letters
 
-  }, 150);
+  }, 400);
 }
 
 document.addEventListener('click', e=>{
