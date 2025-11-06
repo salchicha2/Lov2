@@ -34,7 +34,6 @@ html, body {
   color: #ff69b4;
   user-select: none;
   pointer-events: none;
-  opacity: 0.7;
 }
 
 .rainText, .burstText {
@@ -84,40 +83,46 @@ document.addEventListener('mousemove', e => {
   cursor.style.top = (e.clientY - 12) + 'px';
 });
 
-/* --- Mirrored Background Hearts with Trails --- */
-function createMirroredHeart() {
-  const x = Math.random() * window.innerWidth;
+/* --- Background Hearts with Mirrored Trails --- */
+function createMirroredHeart(){
+  const x = Math.random()*window.innerWidth;
   const positions = [x, window.innerWidth - x];
 
-  positions.forEach(pos => {
+  positions.forEach(pos=>{
     const heart = document.createElement('div');
-    heart.className = 'heart';
-    heart.textContent = '❤️';
-    heart.style.left = pos + 'px';
-    heart.style.bottom = '0px';
+    heart.className='heart';
+    heart.textContent='❤️';
+    heart.style.left=pos+'px';
+    heart.style.bottom='0px';
     body.appendChild(heart);
 
+    const duration = 3000;
     const start = performance.now();
-    const duration = 3000 + Math.random() * 2000;
 
     function animate(time){
-      const progress = (time - start) / duration;
+      const progress = (time-start)/duration;
       if(progress < 1){
-        heart.style.bottom = (progress * (window.innerHeight + 50)) + 'px';
-        heart.style.opacity = 0.7 * (1 - progress);
+        const bottomPos = progress*(window.innerHeight+50);
+        heart.style.bottom = bottomPos+'px';
+
+        const trail = heart.cloneNode(true);
+        trail.style.opacity = 0.3;
+        body.appendChild(trail);
+        setTimeout(()=>trail.remove(),300);
+
         requestAnimationFrame(animate);
       } else heart.remove();
     }
     requestAnimationFrame(animate);
   });
 }
-setInterval(createMirroredHeart, 200);
+setInterval(createMirroredHeart, 300);
 
-/* --- Fast Vertical "I love you" Rain Columns with Trails --- */
-const columnCount = 25;
+/* --- Spaced Vertical "I love you" Rain Columns with Trailing Shadows --- */
+const columnCount = 15;
 const columns = [];
-for(let i=0; i<columnCount; i++){
-  columns.push(Math.random()*window.innerWidth);
+for(let i=0;i<columnCount;i++){
+  columns.push((i+0.5)*(window.innerWidth/columnCount));
 }
 
 function createFastRain(){
@@ -129,100 +134,110 @@ function createFastRain(){
     text.style.top='-30px';
     body.appendChild(text);
 
-    // mirrored trail
-    const trail = document.createElement('div');
-    trail.className='rainText trail';
-    trail.textContent='I love you';
-    trail.style.left = (window.innerWidth - x)+'px';
-    trail.style.top='-30px';
-    body.appendChild(trail);
+    const mirror = document.createElement('div');
+    mirror.className='rainText';
+    mirror.textContent='I love you';
+    mirror.style.left = (window.innerWidth - x)+'px';
+    mirror.style.top='-30px';
+    body.appendChild(mirror);
 
-    const duration = 800 + Math.random()*200; // fast fall
+    const duration = 800;
     const start = performance.now();
 
     function animate(time){
       const progress = (time - start)/duration;
       if(progress < 1){
-        text.style.top = (progress*(window.innerHeight+50))+'px';
-        trail.style.top = (progress*(window.innerHeight+50))+'px';
+        const topPos = progress*(window.innerHeight+50);
+        text.style.top = topPos+'px';
+        mirror.style.top = topPos+'px';
+
+        // trailing shadows
+        const textTrail = text.cloneNode(true);
+        textTrail.style.opacity = 0.3;
+        body.appendChild(textTrail);
+        setTimeout(()=>textTrail.remove(),300);
+
+        const mirrorTrail = mirror.cloneNode(true);
+        mirrorTrail.style.opacity = 0.3;
+        body.appendChild(mirrorTrail);
+        setTimeout(()=>mirrorTrail.remove(),300);
+
         requestAnimationFrame(animate);
       } else {
         text.remove();
-        trail.remove();
+        mirror.remove();
       }
     }
     requestAnimationFrame(animate);
   });
 }
-setInterval(createFastRain, 100);
+setInterval(createFastRain, 250);
 
-/* --- Click Burst: More Words, Two Sizes, Mirrored, with Trails --- */
-function createBurst(x, y) {
+/* --- Click Burst: Farther with 3D-Style Trails --- */
+function createBurst(x, y){
   const burstCount = 50;
-  for (let i = 0; i < burstCount; i++) {
-    [1, -1].forEach(factor => {
+  for(let i=0;i<burstCount;i++){
+    [1,-1].forEach(factor=>{
+      const size = Math.random() < 0.5 ? 2.5 : 1.5;
       const burst = document.createElement('div');
-      burst.className = 'burstText';
-      burst.style.fontSize = Math.random() < 0.5 ? '2.5em' : '1.5em';
-      burst.textContent = 'I love you baby';
-      burst.style.left = x + 'px';
-      burst.style.top = y + 'px';
+      burst.className='burstText';
+      burst.style.fontSize = size+'em';
+      burst.textContent='I love you baby';
+      burst.style.left = x+'px';
+      burst.style.top = y+'px';
       body.appendChild(burst);
 
-      const trail = document.createElement('div');
-      trail.className = 'trail';
-      trail.textContent = burst.textContent;
-      trail.style.left = x + 'px';
-      trail.style.top = y + 'px';
-      trail.style.fontSize = burst.style.fontSize;
-      body.appendChild(trail);
-
-      const angle = Math.random() * Math.PI;
-      const distance = 80 + Math.random() * 60;
-      const dx = Math.cos(angle) * distance * factor;
-      const dy = Math.sin(angle) * distance;
+      const angle = Math.random()*Math.PI;
+      const distance = 150 + Math.random()*100; // farther
+      const dx = Math.cos(angle)*distance*factor;
+      const dy = Math.sin(angle)*distance;
 
       const start = performance.now();
-      const duration = 900 + Math.random() * 300;
+      const duration = 1000 + Math.random()*300;
 
       function animate(time){
         const progress = (time - start)/duration;
-        if(progress < 1){
-          const moveX = x + dx * progress;
-          const moveY = y + dy * progress;
-          burst.style.left = moveX + 'px';
-          burst.style.top = moveY + 'px';
+        if(progress <1){
+          const moveX = x + dx*progress;
+          const moveY = y + dy*progress;
+          burst.style.left = moveX+'px';
+          burst.style.top = moveY+'px';
           burst.style.opacity = 1-progress;
 
-          trail.style.left = moveX + 'px';
-          trail.style.top = moveY + 'px';
-          trail.style.opacity = 0.5*(1-progress);
+          // 3D-style trailing layers
+          for(let t=1;t<=3;t++){
+            const trail = burst.cloneNode(true);
+            trail.style.opacity = 0.3/(t);
+            trail.style.fontSize = size*(1-0.1*t)+'em';
+            trail.style.left = moveX - t*2 + 'px';
+            trail.style.top = moveY - t*2 + 'px';
+            body.appendChild(trail);
+            setTimeout(()=>trail.remove(),300 + t*50);
+          }
+
           requestAnimationFrame(animate);
-        } else {
-          burst.remove();
-          trail.remove();
-        }
+        } else burst.remove();
       }
       requestAnimationFrame(animate);
     });
   }
 }
 
-document.addEventListener('click', e => {
+document.addEventListener('click', e=>{
   createBurst(e.clientX, e.clientY);
   if(!audioPlayed){
     audio.play();
-    audioPlayed = true;
+    audioPlayed=true;
   }
 });
 
 /* --- Big Regular Pink Fireworks --- */
-function createFirework() {
+function createFirework(){
   const fireworkCount = 20 + Math.floor(Math.random()*15);
-  const xOrigin = Math.random() * window.innerWidth;
-  const yOrigin = Math.random() * window.innerHeight / 2;
+  const xOrigin = Math.random()*window.innerWidth;
+  const yOrigin = Math.random()*window.innerHeight/2;
 
-  for(let i=0; i<fireworkCount; i++){
+  for(let i=0;i<fireworkCount;i++){
     const spark = document.createElement('div');
     spark.style.position='absolute';
     spark.style.left=xOrigin+'px';
@@ -245,18 +260,17 @@ function createFirework() {
 
     function animate(time){
       const progress = (time-start)/duration;
-      if(progress < 1){
-        spark.style.left = xOrigin + dx*progress + 'px';
-        spark.style.top = yOrigin + dy*progress + 'px';
-        spark.style.opacity = 1 - progress;
+      if(progress <1){
+        spark.style.left = xOrigin + dx*progress+'px';
+        spark.style.top = yOrigin + dy*progress+'px';
+        spark.style.opacity = 1-progress;
         requestAnimationFrame(animate);
       } else spark.remove();
     }
     requestAnimationFrame(animate);
   }
 }
-
-setInterval(createFirework, 400);
+setInterval(createFirework,400);
 
 </script>
 </body>
