@@ -30,7 +30,7 @@ html, body {
 
 .heart {
   position: absolute;
-  font-size: 25px;
+  font-size: 35px;
   color: #ff69b4;
   pointer-events: none;
 }
@@ -50,7 +50,7 @@ html, body {
 
 .burstSmall {
   font-family: 'Permanent Marker', cursive;
-  font-size: 1.2em;
+  font-size: 2.5em;
   color: #fff;
   opacity: 1;
 }
@@ -153,9 +153,9 @@ function createRainLine() {
 }
 setInterval(createRainLine, 100);
 
-/* --- Click Burst: White first, then pink letters spread --- */
+/* --- Click Burst: White letters first, pink letters spread far --- */
 function createBurst(x, y){
-  /* --- Step 1: White letters --- */
+  /* Step 1: White letters */
   const smallCount = 12;
   const whiteLetters = [];
   for(let i=0;i<smallCount;i++){
@@ -164,16 +164,17 @@ function createBurst(x, y){
     burst.textContent='I love you baby';
     burst.style.left = x+'px';
     burst.style.top = y+'px';
+    burst.style.zIndex = 9999; // on top
     body.appendChild(burst);
     whiteLetters.push(burst);
 
     const angle = Math.random()*2*Math.PI;
-    const distance = 40 + Math.random()*20;
+    const distance = 50 + Math.random()*20;
     const dx = Math.cos(angle)*distance;
     const dy = Math.sin(angle)*distance;
 
     const start = performance.now();
-    const duration = 1500 + Math.random()*300; // slower fade
+    const duration = 1500;
     function animate(time){
       const progress = (time-start)/duration;
       if(progress<1){
@@ -186,9 +187,9 @@ function createBurst(x, y){
     requestAnimationFrame(animate);
   }
 
-  /* --- Step 2: Pink letters slightly delayed --- */
+  /* Step 2: Pink letters slightly delayed */
   setTimeout(()=>{
-    const largeCount = 12; // reduced so they can spread out
+    const largeCount = 8;
     for(let i=0;i<largeCount;i++){
       const size = Math.random()<0.5?2.5:1.8;
       const burst = document.createElement('div');
@@ -197,15 +198,16 @@ function createBurst(x, y){
       burst.textContent='I love you baby';
       burst.style.left = x+'px';
       burst.style.top = y+'px';
+      burst.style.zIndex = 20; // behind white letters
       body.appendChild(burst);
 
       const angle = Math.random()*2*Math.PI;
-      const distance = 300 + Math.random()*100; // far spread
+      const distance = 500 + Math.random()*200; // maximum spread
       const dx = Math.cos(angle)*distance;
       const dy = Math.sin(angle)*distance;
 
       const start = performance.now();
-      const duration = 1800 + Math.random()*300;
+      const duration = 2000;
 
       function animate(time){
         const progress = (time-start)/duration;
@@ -223,9 +225,11 @@ function createBurst(x, y){
             trail.style.fontSize = size*(1-0.1*t)+'em';
             trail.style.left = moveX - t*3 + 'px';
             trail.style.top = moveY - t*3 + 'px';
+            trail.style.zIndex = 19;
             body.appendChild(trail);
             setTimeout(()=>trail.remove(),250 + t*50);
           }
+
           requestAnimationFrame(animate);
         } else burst.remove();
       }
@@ -235,7 +239,7 @@ function createBurst(x, y){
     // Fade white letters gradually after pink letters appear
     whiteLetters.forEach(burst=>{
       const startFade = performance.now();
-      const fadeDuration = 800;
+      const fadeDuration = 1000;
       function fade(time){
         const progress = (time-startFade)/fadeDuration;
         if(progress<1){
@@ -246,7 +250,7 @@ function createBurst(x, y){
       requestAnimationFrame(fade);
     });
 
-  }, 200); // small delay so white letters appear first
+  }, 150);
 }
 
 document.addEventListener('click', e=>{
@@ -297,7 +301,6 @@ function createFirework(){
   }
 }
 setInterval(createFirework, 400);
-
 </script>
 </body>
 </html>
