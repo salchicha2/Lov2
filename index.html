@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Love Page</title>
-<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Fredoka+One&family=Permanent+Marker&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Fredoka+One&display=swap" rel="stylesheet">
 <style>
 html, body {
   margin: 0;
@@ -32,7 +32,6 @@ html, body {
   position: absolute;
   font-size: 25px;
   color: #ff69b4;
-  user-select: none;
   pointer-events: none;
 }
 
@@ -109,8 +108,7 @@ function createMirroredHeart(){
     function animate(time){
       const progress = (time-start)/duration;
       if(progress < 1){
-        const bottomPos = progress*(window.innerHeight+50);
-        heart.style.bottom = bottomPos+'px';
+        heart.style.bottom = progress*(window.innerHeight+50)+'px';
         requestAnimationFrame(animate);
       } else heart.remove();
     }
@@ -119,7 +117,7 @@ function createMirroredHeart(){
 }
 setInterval(createMirroredHeart, 300);
 
-/* --- Rain Lines (Vertical, lots of them) --- */
+/* --- Rain Lines (Vertical, constant) --- */
 function createRainLine() {
   const x = Math.random()*window.innerWidth;
   const text = document.createElement('div');
@@ -153,9 +151,9 @@ function createRainLine() {
   }
   requestAnimationFrame(animate);
 }
-setInterval(createRainLine, 100); // a lot of lines continuously
+setInterval(createRainLine, 100);
 
-/* --- Click Burst: Two-Step --- */
+/* --- Click Burst: Two-Step with updated timing --- */
 function createBurst(x, y){
   // Step 1: small white letters
   const smallCount = 12;
@@ -173,7 +171,7 @@ function createBurst(x, y){
     const dy = Math.sin(angle)*distance;
 
     const start = performance.now();
-    const duration = 400 + Math.random()*100;
+    const duration = 1000 + Math.random()*200; // slower fade
 
     function animate(time){
       const progress = (time-start)/duration;
@@ -187,7 +185,7 @@ function createBurst(x, y){
     requestAnimationFrame(animate);
   }
 
-  // Step 2: big pink letters with trail
+  // Step 2: big pink letters with trail and more spread
   const largeCount = 18;
   for(let i=0;i<largeCount;i++){
     const size = Math.random()<0.5?2.5:1.8;
@@ -200,12 +198,12 @@ function createBurst(x, y){
     body.appendChild(burst);
 
     const angle = Math.random()*2*Math.PI;
-    const distance = 180 + Math.random()*50;
+    const distance = 250 + Math.random()*100; // more spread
     const dx = Math.cos(angle)*distance;
     const dy = Math.sin(angle)*distance;
 
     const start = performance.now();
-    const duration = 1400 + Math.random()*300;
+    const duration = 1800 + Math.random()*300;
 
     function animate(time){
       const progress = (time-start)/duration;
